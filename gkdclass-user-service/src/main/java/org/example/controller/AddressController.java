@@ -1,9 +1,12 @@
 package org.example.controller;
 
 
-import org.springframework.web.bind.annotation.RequestMapping;
-
-import org.springframework.web.bind.annotation.RestController;
+import io.swagger.annotations.Api;
+import io.swagger.annotations.ApiOperation;
+import io.swagger.annotations.ApiParam;
+import org.example.service.AddressService;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.web.bind.annotation.*;
 
 /**
  * <p>
@@ -13,9 +16,19 @@ import org.springframework.web.bind.annotation.RestController;
  * @author Gaokd
  * @since 2023-03-16
  */
+@Api(tags = "收货地址")
 @RestController
-@RequestMapping("/addressDO")
+@RequestMapping("/api/address/v1")
 public class AddressController {
+    @Autowired
+    private AddressService addressService;
+
+    @ApiOperation("根据id查找地址详情")
+    @GetMapping("detail")
+    public Object test(    @ApiParam(value = "地址id",required = true)
+                           @RequestParam(value = "address_id")long address_id){
+        return addressService.detail(address_id);
+    }
 
 }
 

@@ -21,10 +21,10 @@
         <java.version>8</java.version>
         <maven.compiler.source>8</maven.compiler.source>
         <maven.compiler.target>8</maven.compiler.target>
-        <spring.boot.version>2.7.9</spring.boot.version>
+        <spring.boot.version>2.6.5</spring.boot.version>
         <spring.cloud.version>Hoxton.SR8</spring.cloud.version>
         <alibaba.cloud.version>2.2.1.RELEASE</alibaba.cloud.version>
-        <mybatisplus.boot.starter.version>3.4.0</mybatisplus.boot.starter.version>
+        <mybatisplus.boot.starter.version>3.4.2</mybatisplus.boot.starter.version>
         <lombok.version>1.18.24</lombok.version>
         <commons.lang3.version>3.9</commons.lang3.version>
         <commons.codec.version>1.15</commons.codec.version>
@@ -38,7 +38,7 @@
     <!--锁定版本-->
     <dependencyManagement>
         <dependencies>
-            <!--https://mvnrepository.com/artifact/org.springframework.boot/spring-boot-dependencies/2.3.3.RELEASE-->
+            <!--https://mvnrepository.com/artifact/org.springframework.boot/spring-boot-dependencies/-->
             <dependency>
                 <groupId>org.springframework.boot</groupId>
                 <artifactId>spring-boot-dependencies</artifactId>
@@ -46,6 +46,7 @@
                 <type>pom</type>
                 <scope>import</scope>
             </dependency>
+
 
             <!--https://mvnrepository.com/artifact/org.springframework.cloud/spring-cloud-dependencies/Hoxton.SR8-->
             <dependency>
@@ -68,11 +69,13 @@
 
 
             <!--mybatis plus和springboot整合-->
+            <!-- https://mvnrepository.com/artifact/com.baomidou/mybatis-plus-boot-starter -->
             <dependency>
                 <groupId>com.baomidou</groupId>
                 <artifactId>mybatis-plus-boot-starter</artifactId>
-                <version>${mybatisplus.boot.starter.version}</version>
+                <version>3.4.1</version>
             </dependency>
+
 
             <!--https://mvnrepository.com/artifact/org.projectlombok/lombok/1.18.16-->
             <!--scope=provided，说明它只在编译阶段生效，不需要打入包中, Lombok在编译期将带Lombok注解的Java文件正确编译为完整的Class文件-->
