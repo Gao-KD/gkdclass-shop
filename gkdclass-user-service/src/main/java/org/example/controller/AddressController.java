@@ -4,7 +4,9 @@ package org.example.controller;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
 import io.swagger.annotations.ApiParam;
+import org.example.model.AddressDO;
 import org.example.service.AddressService;
+import org.example.utils.JsonData;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 
@@ -27,7 +29,8 @@ public class AddressController {
     @GetMapping("detail")
     public Object test(    @ApiParam(value = "地址id",required = true)
                            @RequestParam(value = "address_id")long address_id){
-        return addressService.detail(address_id);
+        AddressDO addressDO = addressService.detail(address_id);
+        return JsonData.buildSuccess(addressDO);
     }
 
 }
