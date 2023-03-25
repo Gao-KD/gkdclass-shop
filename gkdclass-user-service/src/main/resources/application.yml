@@ -11,6 +11,26 @@ spring:
     url: jdbc:mysql://127.0.0.1:3306/gaokdclass_user?useUnicode=true&characterEncoding=utf-8&useSSL=false&serverTimezone=Asia/Shanghai
     username: root
     password: Gkd()03073436
+  redis:
+    host: 110.40.152.57
+    password: 123456Gdclass
+    port: 6379
+  mail:
+    host: smtp.126.com
+    username: Gggggggggggkd@126.com
+    password: NXAXUANETWWPVKYR
+    default-encoding: utf-8
+    from: Gggggggggggkd@126.com
+    properties:
+      mail:
+        smtp:
+          ssl:
+            enable: true
+          starttls:
+            enable: true
+            required: true
+
+
 
 #配置plus打印sql日志
 mybatis-plus:
