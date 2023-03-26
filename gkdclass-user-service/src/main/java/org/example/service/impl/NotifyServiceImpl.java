@@ -32,7 +32,7 @@ public class NotifyServiceImpl implements NotifyService {
     /***
      * 验证码内容
      */
-    private static final String CONTENT = "验证码：%s，60s内有效，为了保障您的账户安全，请勿向他人泄漏验证码信息";
+    private static final String CONTENT = "验证码：%s，10min内有效，为了保障您的账户安全，请勿向他人泄漏验证码信息";
 
     /**
      * 过期时间
@@ -63,7 +63,7 @@ public class NotifyServiceImpl implements NotifyService {
         //如果为空 表示还未注册，否则判断60s内重复发送
         if (!StringUtils.isNullOrEmpty(cacheValue)){
             //字符串分割
-            long ttl = Long.parseLong( cacheValue.split("_")[1]);
+            long ttl = Long.parseLong(cacheValue.split("_")[1]);
             //当前时间戳 - 验证码发送时间戳 < 60s 就不给发送
             if (System.currentTimeMillis() - ttl < 60 * 1000 ){
                 log.info("重复发送验证码,时间间隔:" + ((System.currentTimeMillis() - ttl)/1000)+"秒");
@@ -73,7 +73,7 @@ public class NotifyServiceImpl implements NotifyService {
 
         //获取6位验证码
         String code = CommonUtil.getRandomCode(6);
-        //拼接时间戳(在commonUtil中)
+        //拼接时间戳(在commonUtil中) 123123_2023.3.26
         String value = code+"_"+System.currentTimeMillis();
 
         //存储到缓存中，并且设置过期时间：10min
@@ -92,5 +92,29 @@ public class NotifyServiceImpl implements NotifyService {
             return null;
         }else
             return JsonData.buildResult(BizCodeEnum.CODE_TO_ERROR);
+    }
+
+    /**
+     * 校验验证码
+     * @param sendCodeEnum
+     * @param to
+     * @param code
+     * @return
+     */
+    @Override
+    public boolean checkCode(SendCodeEnum sendCodeEnum, String to, String code) {
+        String cacheKey = String.format(CacheKey.CHECK_CODE_KEY, sendCodeEnum.name(),to);
+        String cacheValue = redisTemplate.opsForValue().get(cacheKey);
+        if (!StringUtils.isNullOrEmpty(cacheValue)){
+            String cacheCode = cacheValue.split("_")[0];
+            log.info("邮箱缓存验证码:"+cacheCode);
+            log.info("邮箱输入框验证码:"+code);
+            if (cacheCode.equals(code)){
+                //删除验证码
+                redisTemplate.delete(cacheKey);
+                return true;
+            }
+        }
+        return false;
     }
 }
