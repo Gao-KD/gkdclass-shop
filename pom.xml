@@ -76,6 +76,11 @@
                 <version>3.4.1</version>
             </dependency>
 
+            <dependency>
+                <groupId>com.baomidou</groupId>
+                <artifactId>kaptcha-spring-boot-starter</artifactId>
+                <version>1.1.0</version>
+            </dependency>
 
             <!--https://mvnrepository.com/artifact/org.projectlombok/lombok/1.18.16-->
             <!--scope=provided，说明它只在编译阶段生效，不需要打入包中, Lombok在编译期将带Lombok注解的Java文件正确编译为完整的Class文件-->

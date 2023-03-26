@@ -28,11 +28,11 @@ public class NotifyServiceImpl implements NotifyService {
     /**
      * 验证码标题
      */
-    private static final String SUBJECT = "[在线教育平台验证码]";
+    private static final String SUBJECT = "【在线教育平台验证码】";
     /***
      * 验证码内容
      */
-    private static final String CONTENT = "验证码:%s,60s内有效，为了保障您的账户安全，请勿向他人泄漏验证码信息";
+    private static final String CONTENT = "验证码：%s，60s内有效，为了保障您的账户安全，请勿向他人泄漏验证码信息";
 
     /**
      * 过期时间
