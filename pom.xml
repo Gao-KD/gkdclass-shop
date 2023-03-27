@@ -117,6 +117,12 @@
                 <version>${springfox.boot.starter.version}</version>
             </dependency>
 
+            <!-- JWT相关 -->
+            <dependency>
+                <groupId>io.jsonwebtoken</groupId>
+                <artifactId>jjwt</artifactId>
+                <version>0.9.1</version>
+            </dependency>
 
 
         </dependencies>

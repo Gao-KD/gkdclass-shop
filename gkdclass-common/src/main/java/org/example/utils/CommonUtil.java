@@ -1,12 +1,17 @@
 package org.example.utils;
 
+import com.fasterxml.jackson.databind.ObjectMapper;
 import com.mysql.cj.util.StringUtils;
 
 import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
+import java.io.IOException;
+import java.io.PrintWriter;
 import java.net.InetAddress;
 import java.net.UnknownHostException;
 import java.security.MessageDigest;
 import java.util.Random;
+import java.util.UUID;
 
 public class CommonUtil {
 
@@ -94,6 +99,14 @@ public class CommonUtil {
     }
 
     /**
+     * 生成uuid
+     * @return
+     */
+    public static String generateUUID() {
+        return UUID.randomUUID().toString().replaceAll("-","").substring(0,32);
+    }
+
+    /**
      * 获取当前时间戳
      * @return
      */
@@ -115,5 +128,23 @@ public class CommonUtil {
             saltString.append(ALL_CHAR_NUM.charAt(random.nextInt(ALL_CHAR_NUM.length())));
         }
         return saltString.toString();
+    }
+
+    /**
+     * 相应Json数据给前端
+     * @param response
+     * @param obj
+     */
+    public static void sendJsonMessage(HttpServletResponse response, Object obj) {
+        //序列化
+        ObjectMapper objectMapper = new ObjectMapper();
+        //http的response的头信息
+        response.setContentType("application/json; charset=utf-8");
+        try(PrintWriter writer = response.getWriter()) {
+            writer.print(objectMapper.writeValueAsString(obj));
+            response.flushBuffer();
+        } catch (IOException e) {
+            throw new RuntimeException(e);
+        }
     }
 }

@@ -7,6 +7,7 @@ import org.apache.commons.codec.digest.Md5Crypt;
 import org.example.enums.BizCodeEnum;
 import org.example.enums.SendCodeEnum;
 import org.example.mapper.UserMapper;
+import org.example.model.LoginUser;
 import org.example.model.UserDO;
 import org.example.request.UserLoginRequest;
 import org.example.request.UserRegisterRequest;
@@ -14,10 +15,12 @@ import org.example.service.NotifyService;
 import org.example.service.UserService;
 import org.example.utils.CommonUtil;
 import org.example.utils.JsonData;
+import org.example.utils.JwtUtil;
 import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import javax.servlet.http.HttpServletRequest;
 import java.util.Date;
 import java.util.List;
 
@@ -46,14 +49,14 @@ public class UserServiceImpl implements UserService {
         BeanUtils.copyProperties(userRegisterRequest, userDO);
         userDO.setCreateTime(new Date());
         userDO.setSlogan("人生需要动态规划，学习需要贪心算法");
-        //设置密码 TODO
+        //设置密码
         //生成密钥，盐
         userDO.setSecret("$1$"+ CommonUtil.getStringNumRandom(8));
         //盐+密码拼接
         String cryptPwd = Md5Crypt.md5Crypt(userRegisterRequest.getPwd().getBytes(), userDO.getSecret());
         userDO.setPwd(cryptPwd);
 
-        //唯一性检查 TODO
+        //唯一性检查
         if (checkUnique(userDO.getMail())){
             int rows = userMapper.insert(userDO);
             log.info("影响行数:"+rows+",用户信息:"+userDO.toString());
@@ -92,7 +95,7 @@ public class UserServiceImpl implements UserService {
      * @return
      */
     @Override
-    public JsonData Login(UserLoginRequest userLoginRequest) {
+    public JsonData Login(UserLoginRequest userLoginRequest, HttpServletRequest request) {
         boolean checkCode = false;
         if (!StringUtils.isNullOrEmpty(userLoginRequest.getMail())){
             checkCode = notifyService.checkCode(SendCodeEnum.USER_LOGIN,userLoginRequest.getMail(),userLoginRequest.getCode());
@@ -107,14 +110,23 @@ public class UserServiceImpl implements UserService {
             String checkPwd = Md5Crypt.md5Crypt(userLoginRequest.getPwd().getBytes(), secret);
             log.info("用户信息:"+userDO.toString());
             if (checkPwd.equals(userDO.getPwd())){
-                //生成Token TODO
 
-                return JsonData.buildSuccess();
+
+                /**
+                 * 生成Token
+                  */
+                LoginUser loginUser = new LoginUser();
+                BeanUtils.copyProperties(userDO, loginUser);
+                //生成的token是通过公钥和request中的ip进行绑定过的
+                String token = JwtUtil.geneJsonWebToken(loginUser,request);
+
+
+                return JsonData.buildSuccess(token);
             }else {
                 return JsonData.buildResult(BizCodeEnum.ACCOUNT_PWD_ERROR);
             }
         }else {
-            //为注册
+            //未注册
             return JsonData.buildResult(BizCodeEnum.ACCOUNT_UNREGISTER);
         }
 

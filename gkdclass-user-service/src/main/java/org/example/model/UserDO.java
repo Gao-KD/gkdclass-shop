@@ -5,6 +5,8 @@ import com.baomidou.mybatisplus.annotation.IdType;
 import java.util.Date;
 import com.baomidou.mybatisplus.annotation.TableId;
 import java.io.Serializable;
+
+import com.fasterxml.jackson.annotation.JsonProperty;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
 
@@ -39,6 +41,7 @@ public class UserDO implements Serializable {
     /**
      * 头像
      */
+    @JsonProperty("head_img")
     private String headImg;
 
     /**

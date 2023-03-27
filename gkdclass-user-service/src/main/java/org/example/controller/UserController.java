@@ -22,8 +22,10 @@ import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 
+import javax.servlet.http.HttpServletRequest;
 import java.util.Date;
 import java.util.List;
+import java.util.UUID;
 
 /**
  * <p>
@@ -54,8 +56,8 @@ public class UserController {
      */
     @ApiOperation("用户登陆")
     @PostMapping("login")
-    public JsonData userLogin(@RequestBody UserLoginRequest userLoginRequest){
-        JsonData login = userService.Login(userLoginRequest);
+    public JsonData userLogin(@RequestBody UserLoginRequest userLoginRequest, HttpServletRequest request){
+        JsonData login = userService.Login(userLoginRequest,request);
         return login;
     }
 

@@ -110,7 +110,7 @@ public class NotifyServiceImpl implements NotifyService {
             log.info("邮箱缓存验证码:"+cacheCode);
             log.info("邮箱输入框验证码:"+code);
             if (cacheCode.equals(code)){
-                //删除验证码
+                //删除验证码 TODO
                 redisTemplate.delete(cacheKey);
                 return true;
             }
