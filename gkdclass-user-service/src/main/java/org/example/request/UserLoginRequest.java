@@ -10,4 +10,6 @@ public class UserLoginRequest {
     private String pwd;
 
     private String mail;
+
+    private String code;
 }

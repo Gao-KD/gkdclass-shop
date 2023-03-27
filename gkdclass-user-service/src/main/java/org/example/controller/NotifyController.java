@@ -68,7 +68,7 @@ public class NotifyController {
     }
 
     @ApiOperation("发送邮箱注册验证码")
-    @GetMapping("send_code")
+    @GetMapping("send_register_code")
     public JsonData sendRegisterCode(@RequestParam(value = "to",required = true)String to,
                                      @RequestParam(value = "kaptcha",required = true) String kaptcha,
                                      HttpServletRequest request){
@@ -94,6 +94,13 @@ public class NotifyController {
         }
     }
 
+    @ApiOperation("发送邮箱登陆验证码")
+    @GetMapping("send_login_code")
+    public JsonData sendLoginCode(@RequestParam(value = "to",required = true)String to){
+            JsonData jsonData = notifyService.sendCode(SendCodeEnum.USER_LOGIN,to);
+            log.info("邮箱验证码是:"+jsonData.getData());
+            return JsonData.buildSuccess();
+    }
     /**
      * 获取缓存的key
      * @param request

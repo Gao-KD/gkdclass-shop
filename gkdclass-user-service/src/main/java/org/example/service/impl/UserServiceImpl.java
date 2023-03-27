@@ -93,14 +93,19 @@ public class UserServiceImpl implements UserService {
      */
     @Override
     public JsonData Login(UserLoginRequest userLoginRequest) {
+        boolean checkCode = false;
+        if (!StringUtils.isNullOrEmpty(userLoginRequest.getMail())){
+            checkCode = notifyService.checkCode(SendCodeEnum.USER_LOGIN,userLoginRequest.getMail(),userLoginRequest.getCode());
+            if (!checkCode){
+                return JsonData.buildResult(BizCodeEnum.CODE_ERROR);
+            }
+        }
         QueryWrapper queryWrapper = new QueryWrapper<UserDO>().eq("mail", userLoginRequest.getMail());
         UserDO userDO = userMapper.selectOne(queryWrapper);
         if (userDO != null){
             String secret = userDO.getSecret();
             String checkPwd = Md5Crypt.md5Crypt(userLoginRequest.getPwd().getBytes(), secret);
             log.info("用户信息:"+userDO.toString());
-            log.info("checkPwd:"+checkPwd);
-            log.info("pwd:"+userDO.getPwd());
             if (checkPwd.equals(userDO.getPwd())){
                 //生成Token TODO
 
@@ -114,4 +119,6 @@ public class UserServiceImpl implements UserService {
         }
 
     }
+
+
 }
