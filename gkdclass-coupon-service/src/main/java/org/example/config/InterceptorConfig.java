@@ -7,23 +7,19 @@ import org.springframework.web.servlet.config.annotation.InterceptorRegistry;
 import org.springframework.web.servlet.config.annotation.WebMvcConfigurer;
 
 
-
 @Configuration
 @Slf4j
-public class InterceptorConfig  implements WebMvcConfigurer {
-
-
+public class InterceptorConfig implements WebMvcConfigurer {
 
     @Override
     public void addInterceptors(InterceptorRegistry registry) {
 
         registry.addInterceptor(new LoginInterceptor())
                 //拦截的路径
-                .addPathPatterns("/api/user/*/**","/api/address/*/**")
+                .addPathPatterns("/api/coupon/*/**","/api/coupon_record/*/**")
 
                 //排查不拦截的路径
-                .excludePathPatterns("/api/user/*/send_login_code","/api/user/*/send_register_code","/api/user/*/kaptcha",
-                        "/api/user/*/register","/api/user/*/login","/api/user/*/upload");
+                .excludePathPatterns("/api/coupon/*/page_coupon");
 
     }
 }

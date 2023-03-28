@@ -1,7 +1,9 @@
 package org.example.service;
 
-import org.example.model.CouponDO;
-import com.baomidou.mybatisplus.extension.service.IService;
+import org.example.enums.CouponCategoryEnum;
+import org.example.utils.JsonData;
+
+import java.util.Map;
 
 /**
  * <p>
@@ -12,5 +14,14 @@ import com.baomidou.mybatisplus.extension.service.IService;
  * @since 2023-03-28
  */
 public interface CouponService {
+    Map<String,Object> pageCouponActivity(int page,int size);
 
+
+    /**
+     * 领取优惠券接口
+     * @param couponId
+     * @param promotion
+     * @return
+     */
+    JsonData receiveCoupon(long couponId, CouponCategoryEnum promotion);
 }

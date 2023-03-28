@@ -1,7 +1,5 @@
 package org.example.service;
 
-import org.example.model.CouponRecordDO;
-import com.baomidou.mybatisplus.extension.service.IService;
 
 /**
  * <p>

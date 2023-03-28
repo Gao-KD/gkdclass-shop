@@ -15,4 +15,5 @@ import com.baomidou.mybatisplus.core.mapper.BaseMapper;
 @Mapper
 public interface CouponMapper extends BaseMapper<CouponDO> {
 
+    int reduceStock(long couponId);
 }

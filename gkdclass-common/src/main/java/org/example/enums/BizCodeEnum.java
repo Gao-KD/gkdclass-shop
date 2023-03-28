@@ -22,7 +22,17 @@ public enum BizCodeEnum {
     ACCOUNT_REPEAT(250001,"账号已经存在"),
     ACCOUNT_UNREGISTER(250002,"账号不存在"),
     ACCOUNT_PWD_ERROR(250003,"账号或者密码错误"),
-    ACCOUNT_UNLOGIN(250004, "账号未登陆");
+    ACCOUNT_UNLOGIN(250004, "账号未登陆"),
+
+    /**
+     * 优惠券
+     */
+
+    COUPON_NO_EXIST(260001,"优惠券不存在"),
+    COUPON_NO_STOCK(260002,"库存不足"),
+    COUPON_OUT_OF_TIME(260003,"不在领取范围内"),
+    COUPON_OUT_OF_LIMITE(2600004,"优惠券领取超过限制"),
+    COUPON_STATE_ILLEGAL(260005,"优惠券状态不合法");
 
     @Getter
     private int code;

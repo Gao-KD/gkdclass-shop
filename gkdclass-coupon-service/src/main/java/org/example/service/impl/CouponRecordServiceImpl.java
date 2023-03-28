@@ -1,9 +1,6 @@
 package org.example.service.impl;
 
-import org.example.model.CouponRecordDO;
-import org.example.mapper.CouponRecordMapper;
 import org.example.service.CouponRecordService;
-import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import org.springframework.stereotype.Service;
 
 /**
