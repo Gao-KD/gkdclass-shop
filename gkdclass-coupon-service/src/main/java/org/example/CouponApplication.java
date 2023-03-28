@@ -10,8 +10,8 @@ import org.springframework.web.servlet.config.annotation.EnableWebMvc;
 @EnableWebMvc
 @SpringBootApplication
 @MapperScan("org.example.mapper")
-public class UserApplication {
+public class CouponApplication {
     public static void main(String[] args) {
-        SpringApplication.run(UserApplication.class, args);
+        SpringApplication.run(CouponApplication.class, args);
     }
 }

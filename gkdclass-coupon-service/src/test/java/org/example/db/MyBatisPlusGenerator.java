@@ -21,7 +21,7 @@ public class MyBatisPlusGenerator {
                 .setAuthor("gaokd")
                 // 生成路径，最好使用绝对路径，window路径是不一样的
                 //TODO  TODO  TODO  TODO
-                .setOutputDir("/Users/gaokd/Desktop/code/gkdclass-shop/gkdclass-user-service/src/main/java")
+                .setOutputDir("/Users/gaokd/Desktop/code/gkdclass-shop/gkdclass-coupon-service/src/main/java")
                 // 文件覆盖
                 .setFileOverride(true)
                 // 主键策略
@@ -49,7 +49,7 @@ public class MyBatisPlusGenerator {
         dsConfig.setDbType(DbType.MYSQL)
                 .setDriverName("com.mysql.cj.jdbc.Driver")
                 //TODO  TODO  TODO  TODO
-                .setUrl("jdbc:mysql://127.0.0.1:3306/gaokdclass_user?useSSL=false")
+                .setUrl("jdbc:mysql://127.0.0.1:3306/gaokdclass_coupon?useSSL=false")
                 .setUsername("root")
                 .setPassword("Gkd()03073436");
 
@@ -69,7 +69,7 @@ public class MyBatisPlusGenerator {
 
                 // 生成的表, 支持多表一起生成，以数组形式填写
                 //TODO  TODO  TODO  TODO
-                .setInclude("user","address");
+                .setInclude("coupon","coupon_record");
 
         //4. 包名策略配置
         PackageConfig pkConfig = new PackageConfig();
