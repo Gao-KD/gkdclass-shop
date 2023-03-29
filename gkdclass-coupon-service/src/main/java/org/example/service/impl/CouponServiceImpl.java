@@ -20,13 +20,18 @@ import org.example.service.CouponService;
 import org.example.utils.CommonUtil;
 import org.example.utils.JsonData;
 import org.example.vo.CouponVO;
+import org.omg.CORBA.TIMEOUT;
+import org.redisson.api.RLock;
+import org.redisson.api.RedissonClient;
 import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.redis.core.StringRedisTemplate;
+import org.springframework.data.redis.core.script.DefaultRedisScript;
+import org.springframework.data.redis.core.script.DefaultScriptExecutor;
 import org.springframework.stereotype.Service;
 
-import java.util.Date;
-import java.util.HashMap;
-import java.util.Map;
+import java.util.*;
+import java.util.concurrent.TimeUnit;
 import java.util.stream.Collectors;
 
 /**
@@ -47,6 +52,11 @@ public class CouponServiceImpl implements CouponService {
     @Autowired
     private CouponRecordMapper couponRecordMapper;
 
+    @Autowired
+    private StringRedisTemplate stringRedisTemplate;
+
+    @Autowired
+    private RedissonClient redissonClient;
 
     @Override
     public Map<String, Object> pageCouponActivity(int page, int size) {
@@ -81,41 +91,90 @@ public class CouponServiceImpl implements CouponService {
      */
     @Override
     public JsonData receiveCoupon(long couponId, CouponCategoryEnum category) {
+
+        /*
+
+        String uuid = CommonUtil.generateUUID();
+        String lockKey = "lock:coupon:" + couponId;
+        //十分钟过期时间
+        Boolean lockFlag = stringRedisTemplate.opsForValue().setIfAbsent(lockKey, uuid, 10,TimeUnit.MINUTES);
+        if (lockFlag) {
+            log.info("加锁成功:{}", couponId);
+            try {
+                //执行业务逻辑
+
+            } finally {
+                //解锁 采用lua脚本
+                String script = "if redis.call('get',KEYS[1]) == ARGV[1] then return redis.call('del',KEYS[1]) else return 0 end";
+                Integer result = stringRedisTemplate.execute(new DefaultRedisScript<>(script, Integer.class), Arrays.asList(lockKey), uuid);
+                log.info("解锁:{}",result);
+
+            }
+        } else {
+            //加锁失败
+            try {
+                //睡眠
+                TimeUnit.SECONDS.sleep(3);
+            } catch (InterruptedException e) {
+                log.error("自旋失败");
+            }
+            //自旋
+            receiveCoupon(couponId, category);
+        }
+**/
+
+//        synchronized(this) {  分布式集群部署的时候会失效
         //1.要先获取用户信息
+
+
         LoginUser loginUser = LoginInterceptor.threadLocal.get();
 
-        CouponDO couponDO = couponMapper.selectOne(new QueryWrapper<CouponDO>()
-                //判断优惠券id
-                .eq("id", couponId)
-                //判断优惠券类型是否合法
-                .eq("category", category.name()));
+        String lockKey = "lock:coupon:"+couponId;
+        RLock rlock = redissonClient.getLock(lockKey);
+        //多个线程进入会阻塞等待
+        rlock.lock();
+        log.info("领券接口加锁成功:{}",Thread.currentThread().getId());
+        try {
+            CouponDO couponDO = couponMapper.selectOne(new QueryWrapper<CouponDO>()
+                    //判断优惠券id
+                    .eq("id", couponId)
+                    //判断优惠券类型是否合法
+                    .eq("category", category.name()));
 
-        //判断优惠券是否可以领取
-        this.checkCoupon(couponDO, loginUser.getId());
+            //判断优惠券是否可以领取
+            this.checkCoupon(couponDO, loginUser.getId());
 
-        //没异常，就构建领券记录
-        CouponRecordDO couponRecordDO = new CouponRecordDO();
-        BeanUtils.copyProperties(couponDO, couponRecordDO);
-        couponRecordDO.setCouponId(couponId);
-        couponRecordDO.setUseState(CouponStateEnum.NEW.name());
-        couponRecordDO.setCreateTime(new Date());
-        couponRecordDO.setUserId(loginUser.getId());
-        couponRecordDO.setUserName(loginUser.getName());
-        //自增
-        couponRecordDO.setId(null);
-        log.info("用户信息:{},优惠券信息:{}", loginUser.getName(), couponDO.getId());
-        //TODO CouponRecordServiceImpl实现插入
+            //没异常，就构建领券记录
+            CouponRecordDO couponRecordDO = new CouponRecordDO();
+            BeanUtils.copyProperties(couponDO, couponRecordDO);
+            couponRecordDO.setCouponId(couponId);
+            couponRecordDO.setUseState(CouponStateEnum.NEW.name());
+            couponRecordDO.setCreateTime(new Date());
+            couponRecordDO.setUserId(loginUser.getId());
+            couponRecordDO.setUserName(loginUser.getName());
+            //自增
+            couponRecordDO.setId(null);
+            log.info("用户信息:{},优惠券信息:{}", loginUser.getName(), couponDO.getId());
 
 
-        //扣减库存
-        int rows = 1;
-        if (rows == 1){
-            couponRecordMapper.insert(couponRecordDO);
-        }else {
-            log.warn("发放优惠券失败:{},用户:{}",couponDO.getCouponTitle(),loginUser.getName());
-            throw new BizException(BizCodeEnum.COUPON_NO_STOCK);
+            //扣减库存 要加分布式锁
+            int rows = couponMapper.reduceStock(couponId);
+
+
+            if (rows == 1) {
+                // CouponRecordServiceImpl实现插入
+                couponRecordMapper.insert(couponRecordDO);
+            } else {
+                log.warn("发放优惠券失败:{},用户:{}", couponDO.getCouponTitle(), loginUser.getName());
+                throw new BizException(BizCodeEnum.COUPON_NO_STOCK);
+            }
+        }finally {
+            //解锁
+            rlock.unlock();
+            log.info("领券接口解锁成功");
         }
 
+//        }
         return JsonData.buildSuccess();
     }
 
@@ -126,7 +185,7 @@ public class CouponServiceImpl implements CouponService {
 
         //判断优惠券是否查到
         if (couponDO == null) {
-            throw  new BizException(BizCodeEnum.COUPON_NO_EXIST);
+            throw new BizException(BizCodeEnum.COUPON_NO_EXIST);
         }
         //判断是否还有库存
         if (couponDO.getStock() <= 0) {
@@ -135,7 +194,7 @@ public class CouponServiceImpl implements CouponService {
 
 
         //判断优惠券状态
-        if(!couponDO.getPublish().equals(CouponPulishEnum.PUBLISH.name())){
+        if (!couponDO.getPublish().equals(CouponPulishEnum.PUBLISH.name())) {
             throw new BizException(BizCodeEnum.COUPON_STATE_ILLEGAL);
         }
 
@@ -151,7 +210,7 @@ public class CouponServiceImpl implements CouponService {
         int recordNum = couponRecordMapper.selectCount(new QueryWrapper<CouponRecordDO>()
                 .eq("user_id", user_id)
                 .eq("coupon_id", couponDO.getId()));
-        if (recordNum >= couponDO.getUserLimit()){
+        if (recordNum >= couponDO.getUserLimit()) {
             throw new BizException(BizCodeEnum.COUPON_OUT_OF_LIMITE);
         }
     }
