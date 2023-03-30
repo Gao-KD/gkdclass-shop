@@ -2,6 +2,9 @@ package org.example.service;
 
 import org.example.model.BannerDO;
 import com.baomidou.mybatisplus.extension.service.IService;
+import org.example.vo.BannerVO;
+
+import java.util.List;
 
 /**
  * <p>
@@ -13,4 +16,5 @@ import com.baomidou.mybatisplus.extension.service.IService;
  */
 public interface BannerService {
 
+    List<BannerVO> getList();
 }
