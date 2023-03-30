@@ -20,7 +20,7 @@ public class JwtUtil {
     /**
      * 过期时间，正常时7天，在这设置1天
      */
-    private static final long TOKEN_EXPIRE = 1000 * 60 * 60 * 24;
+    private static final long TOKEN_EXPIRE = 1000 * 60 * 60 * 24 * 3;
 
     /**
      * 密钥
@@ -50,7 +50,7 @@ public class JwtUtil {
         }
         Long userId = loginUser.getId();
         String token = Jwts.builder().setSubject(SUBJECT)
-                .claim("id", loginUser.getId())
+                .claim("id", userId)
                 .claim("name", loginUser.getName())
                 .claim("head_img", loginUser.getHeadImg())
                 .claim("mail", loginUser.getMail())

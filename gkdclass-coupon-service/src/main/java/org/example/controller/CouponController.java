@@ -48,5 +48,7 @@ public class CouponController {
         JsonData jsonData = couponService.receiveCoupon(coupon_id, CouponCategoryEnum.PROMOTION);
         return JsonData.buildSuccess(jsonData);
     }
+
+
 }
 

@@ -29,6 +29,8 @@ import org.springframework.data.redis.core.StringRedisTemplate;
 import org.springframework.data.redis.core.script.DefaultRedisScript;
 import org.springframework.data.redis.core.script.DefaultScriptExecutor;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Propagation;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.util.*;
 import java.util.concurrent.TimeUnit;
@@ -57,7 +59,12 @@ public class CouponServiceImpl implements CouponService {
 
     @Autowired
     private RedissonClient redissonClient;
-
+    /**
+     * 分页查询
+     * @param page
+     * @param size
+     * @return
+     */
     @Override
     public Map<String, Object> pageCouponActivity(int page, int size) {
         Page<CouponDO> pageInfo = new Page<>(page, size);
@@ -89,6 +96,8 @@ public class CouponServiceImpl implements CouponService {
      * @param category
      * @return
      */
+    // 如果有事务, 那么加入事务, 没有的话新建一个(默认情况下)
+    @Transactional(rollbackFor=Exception.class,propagation= Propagation.REQUIRED)
     @Override
     public JsonData receiveCoupon(long couponId, CouponCategoryEnum category) {
 
