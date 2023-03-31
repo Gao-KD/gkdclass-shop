@@ -4,6 +4,7 @@ import org.example.model.ProductDO;
 import com.baomidou.mybatisplus.extension.service.IService;
 import org.example.vo.ProductVO;
 
+import java.util.List;
 import java.util.Map;
 
 /**
@@ -30,4 +31,11 @@ public interface ProductService {
      * @return
      */
     ProductVO findDetailById(long productId);
+
+    /**
+     * 根据id批量查询商品
+     * @param productIdList
+     * @return
+     */
+    List<ProductVO> findProductByIdBatch(List<Long> productIdList);
 }
