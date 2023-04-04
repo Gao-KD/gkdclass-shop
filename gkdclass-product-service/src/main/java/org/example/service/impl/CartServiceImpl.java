@@ -116,6 +116,43 @@ public class CartServiceImpl implements CartService {
     }
 
     /**
+     * 根据id删除购物车商品
+     * @param cartItemRequest
+     */
+    @Override
+    public void deleteCart(CartItemRequest cartItemRequest) {
+
+        if (cartItemRequest.getProductId() < 0){
+            throw new BizException(BizCodeEnum.CART_CHANGE_ILLEGAL);
+        }
+        BoundHashOperations<String,Object,Object> myCart = getMyCartOps();
+        myCart.delete(String.valueOf(cartItemRequest.getProductId()));
+    }
+
+    /**
+     * 修改购物车商品数量
+     * @param cartItemRequest
+     */
+    @Override
+    public void changeCart(CartItemRequest cartItemRequest) {
+        if (cartItemRequest.getProductId() < 0){
+            throw new BizException(BizCodeEnum.CART_CHANGE_ILLEGAL);
+        }
+        BoundHashOperations<String, Object, Object> myCart = getMyCartOps();
+
+        Object cacheObj = myCart.get(String.valueOf(cartItemRequest.getProductId()));
+
+        String obj = (String) cacheObj;
+
+        //json -> object
+        CartItemVO cartItemVO = JSON.parseObject(obj,CartItemVO.class);
+        cartItemVO.setBuyNum(cartItemRequest.getBuyNum());
+        //object -> json
+        myCart.put(String.valueOf(cartItemRequest.getProductId()),JSON.toJSONString(cartItemVO));
+
+    }
+
+    /**
      * 返回购物车信息，如果有最新的价格，还需要修改
      * @param latestPrice
      * @return

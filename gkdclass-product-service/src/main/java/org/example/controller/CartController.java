@@ -38,4 +38,19 @@ public class CartController {
         CartVO cartVO = cartService.myCart();
         return JsonData.buildSuccess(cartVO);
     }
+
+    @ApiOperation("删除购物车")
+    @PostMapping("deleteCart")
+    public JsonData deleteCart(@RequestBody CartItemRequest cartItemRequest){
+        cartService.deleteCart(cartItemRequest);
+        return JsonData.buildSuccess();
+    }
+
+
+    @ApiOperation("修改购物车商品数量")
+    @PostMapping("changeCart")
+    public JsonData changeCart(@RequestBody CartItemRequest cartItemRequest){
+        cartService.changeCart(cartItemRequest);
+        return JsonData.buildSuccess();
+    }
 }

@@ -37,7 +37,8 @@ public enum BizCodeEnum {
     /**
      * 购物车
      */
-    CART_FAIL(270001,"加入购物车失败");
+    CART_FAIL(270001,"加入购物车失败"),
+    CART_CHANGE_ILLEGAL(270002,"修改购物车不合法");
 
 
     @Getter
