@@ -5,21 +5,20 @@ import com.baomidou.mybatisplus.core.metadata.IPage;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import lombok.extern.slf4j.Slf4j;
 import org.example.Interceptor.LoginInterceptor;
+import org.example.config.RabbitMQConfig;
 import org.example.enums.BizCodeEnum;
 import org.example.enums.CouponStateEnum;
 import org.example.enums.StockTaskStateEnum;
 import org.example.exception.BizException;
 import org.example.mapper.CouponRecordMapper;
 import org.example.mapper.CouponTaskMapper;
-import org.example.model.CouponDO;
-import org.example.model.CouponRecordDO;
-import org.example.model.CouponTaskDO;
-import org.example.model.LoginUser;
+import org.example.model.*;
 import org.example.request.LockCouponRecordRequest;
 import org.example.service.CouponRecordService;
 import org.example.utils.JsonData;
 import org.example.vo.CouponRecordVO;
 import org.example.vo.CouponVO;
+import org.springframework.amqp.rabbit.core.RabbitTemplate;
 import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -44,6 +43,11 @@ public class CouponRecordServiceImpl implements CouponRecordService {
     @Autowired
     private CouponTaskMapper couponTaskMapper;
 
+    @Autowired
+    private RabbitTemplate rabbitTemplate;
+
+    @Autowired
+    private RabbitMQConfig rabbitMQConfig;
     /**
      * 用户优惠券记录分页
      * @param page
@@ -116,6 +120,16 @@ public class CouponRecordServiceImpl implements CouponRecordService {
 
         if (lockCouponRecordIds.size() == insertRows && insertRows == updateRows){
             //发送延迟消息 TODO
+            for (CouponTaskDO couponTaskDO : collect){
+                CouponRecordMessage couponRecordMessage = new CouponRecordMessage();
+                couponRecordMessage.setTaskId(couponTaskDO.getId());
+                couponRecordMessage.setOutTradeNo(couponTaskDO.getOutTradeNo());
+                //发送延迟消息
+                rabbitTemplate.convertAndSend(rabbitMQConfig.getEventExchange(), rabbitMQConfig.getCouponReleaseDelayRoutingKey(),couponRecordMessage);
+                log.info("优惠券锁定消息发送mq成功:{}",couponRecordMessage.toString());
+            }
+
+
             return JsonData.buildSuccess();
         }else {
             throw new BizException(BizCodeEnum.COUPON_RECORD_LOCK_FAIL);
