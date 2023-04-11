@@ -82,7 +82,7 @@ public class RabbitMQConfig {
     public Queue couponReleaseDelayQueue(){
         Map<String,Object> args = new HashMap<>(3);
         args.put("x-message-ttl", ttl);
-        args.put("x-dead-letter-routing-key",couponReleaseDelayQueue);
+        args.put("x-dead-letter-routing-key",couponReleaseDelayRoutingKey);
         args.put("x-dead-letter-exchange", eventExchange);
         return new Queue(couponReleaseDelayQueue,true,false,false,args);
     }
@@ -91,7 +91,7 @@ public class RabbitMQConfig {
      */
     @Bean
     public Queue couponReleaseQueue(){
-        return new Queue(couponReleaseDelayQueue,true,false,false);
+        return new Queue(couponReleaseQueue,true,false,false);
     }
     /**
      * 延迟队列绑定关系建立
