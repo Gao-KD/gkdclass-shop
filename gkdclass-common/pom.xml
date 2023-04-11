@@ -22,6 +22,13 @@
             <artifactId>lombok</artifactId>
         </dependency>
 
+
+        <!--引入AMQP-->
+        <dependency>
+            <groupId>org.springframework.boot</groupId>
+            <artifactId>spring-boot-starter-amqp</artifactId>
+        </dependency>
+
         <!--添加nacos客户端-->
         <dependency>
             <groupId>com.alibaba.cloud</groupId>

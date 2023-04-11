@@ -5,6 +5,7 @@ import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
 import io.swagger.annotations.ApiParam;
 import org.example.enums.BizCodeEnum;
+import org.example.request.LockCouponRecordRequest;
 import org.example.service.CouponRecordService;
 import org.example.utils.JsonData;
 import org.example.vo.CouponRecordVO;
@@ -48,5 +49,11 @@ public class CouponRecordController {
     }
 
 
+    @ApiOperation("rpc-锁定，优惠券记录")
+    @PostMapping("lock_records")
+    public JsonData lockCouponRecords(@RequestBody LockCouponRecordRequest lockCouponRecordRequest){
+        JsonData jsonData = couponRecordService.lockCouponRecords(lockCouponRecordRequest);
+        return jsonData;
+    }
 }
 

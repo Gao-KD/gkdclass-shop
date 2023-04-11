@@ -33,12 +33,14 @@ public enum BizCodeEnum {
     COUPON_OUT_OF_TIME(260003,"不在领取范围内"),
     COUPON_OUT_OF_LIMITE(2600004,"优惠券领取超过限制"),
     COUPON_STATE_ILLEGAL(260005,"优惠券状态不合法"),
+    COUPON_RECORD_LOCK_FAIL(260006,"锁定优惠券失败" ),
 
     /**
      * 购物车
      */
     CART_FAIL(270001,"加入购物车失败"),
-    CART_CHANGE_ILLEGAL(270002,"修改购物车不合法");
+    CART_CHANGE_ILLEGAL(270002,"修改购物车不合法")
+    ;
 
 
     @Getter

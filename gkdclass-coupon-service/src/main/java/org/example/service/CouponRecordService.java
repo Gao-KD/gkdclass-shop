@@ -1,6 +1,8 @@
 package org.example.service;
 
 
+import org.example.request.LockCouponRecordRequest;
+import org.example.utils.JsonData;
 import org.example.vo.CouponRecordVO;
 
 import java.util.List;
@@ -20,4 +22,7 @@ public interface CouponRecordService {
 
     //根据优惠券id查询
     List<CouponRecordVO> findByRecordId(long recordId);
+
+    //锁定优惠券
+    JsonData lockCouponRecords(LockCouponRecordRequest lockCouponRecordRequest);
 }

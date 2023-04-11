@@ -1,8 +1,11 @@
 package org.example.mapper;
 
 import org.apache.ibatis.annotations.Mapper;
+import org.apache.ibatis.annotations.Param;
 import org.example.model.CouponRecordDO;
 import com.baomidou.mybatisplus.core.mapper.BaseMapper;
+
+import java.util.List;
 
 /**
  * <p>
@@ -15,4 +18,12 @@ import com.baomidou.mybatisplus.core.mapper.BaseMapper;
 @Mapper
 public interface CouponRecordMapper extends BaseMapper<CouponRecordDO> {
 
+    /**
+     * 批量跟新优惠券实用记录
+     * @param userId
+     * @param useState
+     * @param lockCouponRecordIds
+     * @return
+     */
+    int lockUseStateBath(@Param("userId") Long userId,@Param("useState") String useState,@Param("lockCouponRecordIds") List<Long> lockCouponRecordIds);
 }
