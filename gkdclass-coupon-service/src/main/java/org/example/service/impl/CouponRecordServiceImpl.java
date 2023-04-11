@@ -15,7 +15,9 @@ import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
 
@@ -60,21 +62,31 @@ public class CouponRecordServiceImpl implements CouponRecordService {
     }
 
     @Override
-    public CouponRecordVO findByRecordId(long recordId) {
+    public List<CouponRecordVO> findByRecordId(long recordId) {
         LoginUser loginUser = LoginInterceptor.threadLocal.get();
-        CouponRecordDO couponRecordDO = couponRecordMapper.selectOne(new QueryWrapper<CouponRecordDO>()
+        List<CouponRecordDO> couponRecordDOS = couponRecordMapper.selectList(new QueryWrapper<CouponRecordDO>()
                 .eq("coupon_id", recordId)
                 .eq("user_id", loginUser.getId()));
-        if (couponRecordDO == null){
+        if (couponRecordDOS == null){
             return null;
         }
-        return beanProcess(couponRecordDO);
+        return beanProcessList(couponRecordDOS);
     }
-
 
     private CouponRecordVO beanProcess(CouponRecordDO couponRecordDO) {
         CouponRecordVO couponRecordVO = new CouponRecordVO();
         BeanUtils.copyProperties(couponRecordDO, couponRecordVO);
         return couponRecordVO;
     }
+
+    private List<CouponRecordVO> beanProcessList(List<CouponRecordDO> couponRecordDOList) {
+        List<CouponRecordVO> couponRecordVOList = new ArrayList<>();
+        for (CouponRecordDO couponRecordDO : couponRecordDOList) {
+            CouponRecordVO couponRecordVO = new CouponRecordVO();
+            BeanUtils.copyProperties(couponRecordDO, couponRecordVO);
+            couponRecordVOList.add(couponRecordVO);
+        }
+        return couponRecordVOList;
+    }
+
 }

@@ -7,6 +7,7 @@ import io.swagger.annotations.ApiParam;
 import lombok.extern.slf4j.Slf4j;
 import org.example.config.MyBatisPlusPageConfig;
 import org.example.enums.CouponCategoryEnum;
+import org.example.request.NewUserCouponRequest;
 import org.example.service.CouponService;
 import org.example.utils.JsonData;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -49,6 +50,14 @@ public class CouponController {
         return JsonData.buildSuccess(jsonData);
     }
 
+
+    @ApiOperation("RPC-新用户注解领券接口")
+    @PostMapping("/new_user_coupon")
+    public JsonData addNewUserCoupon(@ApiParam("用户对象")@RequestBody NewUserCouponRequest newUserCouponRequest){
+        JsonData jsonData = couponService.initNewUserCoupon(newUserCouponRequest);
+        return jsonData;
+
+    }
 
 }
 

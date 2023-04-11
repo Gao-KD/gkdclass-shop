@@ -1,6 +1,7 @@
 package org.example.service;
 
 import org.example.enums.CouponCategoryEnum;
+import org.example.request.NewUserCouponRequest;
 import org.example.utils.JsonData;
 
 import java.util.Map;
@@ -24,4 +25,11 @@ public interface CouponService {
      * @return
      */
     JsonData receiveCoupon(long couponId, CouponCategoryEnum promotion);
+
+    /**
+     * 新用户注册发放优惠券
+     * @param newUserCouponRequest
+     * @return
+     */
+    JsonData initNewUserCoupon(NewUserCouponRequest newUserCouponRequest);
 }

@@ -2,6 +2,11 @@ server:
   port: 9001
 
 spring:
+  cloud:
+    #注册中心地址
+    nacos:
+      discovery:
+        server-addr: 110.40.152.57:8848
   application:
     name: gkdclass-user-service
 

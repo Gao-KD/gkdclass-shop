@@ -11,6 +11,7 @@ import org.example.vo.CouponRecordVO;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.List;
 import java.util.Map;
 
 /**
@@ -41,9 +42,9 @@ public class CouponRecordController {
     @ApiOperation("查询优惠券记录详情")
     @GetMapping("/detail/{record_id}")
     public JsonData getCouponRecordDetail(@ApiParam(value = "优惠券记录id") @PathVariable("record_id") long recordId){
-        CouponRecordVO couponRecordVO = couponRecordService.findByRecordId(recordId);
+        List<CouponRecordVO> byRecordId = couponRecordService.findByRecordId(recordId);
 
-        return couponRecordVO == null ? JsonData.buildResult(BizCodeEnum.COUPON_NO_EXIST) : JsonData.buildSuccess(couponRecordVO);
+        return byRecordId == null ? JsonData.buildResult(BizCodeEnum.COUPON_NO_EXIST) : JsonData.buildSuccess(byRecordId);
     }
 
 

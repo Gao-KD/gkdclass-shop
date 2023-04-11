@@ -3,6 +3,7 @@ package org.example.service;
 
 import org.example.vo.CouponRecordVO;
 
+import java.util.List;
 import java.util.Map;
 
 /**
@@ -18,5 +19,5 @@ public interface CouponRecordService {
     Map<String,Object> pageCouponRecordActivity(int page, int size);
 
     //根据优惠券id查询
-    CouponRecordVO findByRecordId(long recordId);
+    List<CouponRecordVO> findByRecordId(long recordId);
 }

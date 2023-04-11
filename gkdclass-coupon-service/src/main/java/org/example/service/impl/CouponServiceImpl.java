@@ -15,6 +15,7 @@ import org.example.mapper.CouponRecordMapper;
 import org.example.model.CouponDO;
 import org.example.model.CouponRecordDO;
 import org.example.model.LoginUser;
+import org.example.request.NewUserCouponRequest;
 import org.example.service.CouponRecordService;
 import org.example.service.CouponService;
 import org.example.utils.CommonUtil;
@@ -184,6 +185,33 @@ public class CouponServiceImpl implements CouponService {
         }
 
 //        }
+        return JsonData.buildSuccess();
+    }
+
+    /**
+     * 新用户发放优惠券
+     * 用户微服务调用，没传递token
+     * @param newUserCouponRequest
+     * @return
+     */
+
+    @Transactional(rollbackFor = Exception.class,propagation = Propagation.REQUIRED)
+    @Override
+    public JsonData initNewUserCoupon(NewUserCouponRequest newUserCouponRequest) {
+        LoginUser loginUser = new LoginUser();
+        loginUser.setId(newUserCouponRequest.getUserId());
+        loginUser.setName(newUserCouponRequest.getName());
+
+        LoginInterceptor.threadLocal.set(loginUser);
+
+        //查询新用户有哪些优惠券
+        List<CouponDO> couponDOList = couponMapper.selectList(
+                new QueryWrapper<CouponDO>().eq("category", CouponCategoryEnum.NEW_USER.name()));
+
+        for (CouponDO couponDO : couponDOList){
+            //幂等操作，需要加锁
+            this.receiveCoupon(couponDO.getId(), CouponCategoryEnum.NEW_USER);
+        }
         return JsonData.buildSuccess();
     }
 

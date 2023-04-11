@@ -6,9 +6,11 @@ import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.codec.digest.Md5Crypt;
 import org.example.enums.BizCodeEnum;
 import org.example.enums.SendCodeEnum;
+import org.example.fegin.CouponFeginService;
 import org.example.mapper.UserMapper;
 import org.example.model.LoginUser;
 import org.example.model.UserDO;
+import org.example.request.NewUserCouponRequest;
 import org.example.request.UserLoginRequest;
 import org.example.request.UserRegisterRequest;
 import org.example.service.NotifyService;
@@ -27,6 +29,9 @@ import java.util.List;
 @Service
 @Slf4j
 public class UserServiceImpl implements UserService {
+
+    @Autowired
+    private CouponFeginService couponFeginService;
 
     @Autowired
     private UserMapper userMapper;
@@ -62,6 +67,8 @@ public class UserServiceImpl implements UserService {
             log.info("影响行数:"+rows+",用户信息:"+userDO.toString());
 
             //用户注册后，初始化信息，发放优惠券等  TODO
+
+
             userRegisterInitTask(userDO);
             return JsonData.buildSuccess();
         }else {
@@ -86,7 +93,11 @@ public class UserServiceImpl implements UserService {
      * 用户注册，初始化福利 TODO
      */
     private void userRegisterInitTask(UserDO userDO){
-
+        NewUserCouponRequest request = new NewUserCouponRequest();
+        request.setUserId(userDO.getId());
+        request.setName(userDO.getName());
+        JsonData jsonData = couponFeginService.addNewUserCoupon(request);
+        log.info("发放新用户注册优惠券:{},结果:{}",request.toString(),jsonData.toString());
     }
 
     /**
