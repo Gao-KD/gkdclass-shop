@@ -11,6 +11,7 @@ import org.springframework.web.servlet.config.annotation.EnableWebMvc;
 
 @EnableWebMvc
 @SpringBootApplication
+
 @MapperScan("org.example.mapper")
 @EnableDiscoveryClient
 @EnableFeignClients

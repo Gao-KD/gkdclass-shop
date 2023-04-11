@@ -66,10 +66,9 @@ public class UserServiceImpl implements UserService {
             int rows = userMapper.insert(userDO);
             log.info("影响行数:"+rows+",用户信息:"+userDO.toString());
 
-            //用户注册后，初始化信息，发放优惠券等  TODO
-
-
+            //用户注册后，初始化信息，发放优惠券等
             userRegisterInitTask(userDO);
+
             return JsonData.buildSuccess();
         }else {
             return JsonData.buildResult(BizCodeEnum.ACCOUNT_REPEAT);
@@ -90,7 +89,7 @@ public class UserServiceImpl implements UserService {
 
 
     /**
-     * 用户注册，初始化福利 TODO
+     * 用户注册，初始化福利
      */
     private void userRegisterInitTask(UserDO userDO){
         NewUserCouponRequest request = new NewUserCouponRequest();
