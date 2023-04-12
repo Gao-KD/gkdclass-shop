@@ -1,6 +1,7 @@
 package org.example.service;
 
 
+import org.example.model.CouponRecordMessage;
 import org.example.request.LockCouponRecordRequest;
 import org.example.utils.JsonData;
 import org.example.vo.CouponRecordVO;
@@ -25,4 +26,7 @@ public interface CouponRecordService {
 
     //锁定优惠券
     JsonData lockCouponRecords(LockCouponRecordRequest lockCouponRecordRequest);
+
+    //释放优惠券
+    boolean releaseCouponRecord(CouponRecordMessage recordMessage);
 }

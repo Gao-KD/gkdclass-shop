@@ -24,4 +24,6 @@ public interface CouponTaskMapper extends BaseMapper<CouponTaskDO> {
      * @return
      */
     int insertBatch(@Param("couponTaskList") List<CouponTaskDO> couponTaskList);
+
+
 }

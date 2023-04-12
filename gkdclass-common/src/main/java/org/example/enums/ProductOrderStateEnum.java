@@ -5,13 +5,13 @@ public enum ProductOrderStateEnum {
     /**
      * 未支付订单
      */
-    NEW,
+    UNPAID,
 
 
     /**
      * 已经支付订单
      */
-    PAY,
+    PAID,
 
     /**
      * 超时取消订单
