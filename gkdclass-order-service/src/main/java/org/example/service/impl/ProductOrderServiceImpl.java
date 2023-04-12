@@ -1,11 +1,13 @@
 package org.example.service.impl;
 
+import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import org.example.model.ProductOrderDO;
 import org.example.mapper.ProductOrderMapper;
 import org.example.request.ConfirmOrderRequest;
 import org.example.service.ProductOrderService;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import org.example.utils.JsonData;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 /**
@@ -19,6 +21,8 @@ import org.springframework.stereotype.Service;
 @Service
 public class ProductOrderServiceImpl  implements ProductOrderService {
 
+    @Autowired
+    private ProductOrderMapper productOrderMapper;
     /**
      * 防重提交
      * 用户微服务-确认收货地址
@@ -36,5 +40,20 @@ public class ProductOrderServiceImpl  implements ProductOrderService {
     @Override
     public JsonData confirmOrder(ConfirmOrderRequest confirmOrderRequest) {
         return null;
+    }
+
+    /**
+     *
+     * @param outTradeNo
+     * @return
+     */
+    @Override
+    public String queryProductOrderState(String outTradeNo) {
+        ProductOrderDO orderDO = productOrderMapper.selectOne(new QueryWrapper<ProductOrderDO>().eq("out_trade_no", outTradeNo));
+        if (orderDO == null){
+            return "";
+        }else {
+            return orderDO.getState();
+        }
     }
 }

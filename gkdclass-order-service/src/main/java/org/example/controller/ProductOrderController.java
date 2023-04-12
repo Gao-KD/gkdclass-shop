@@ -1,10 +1,12 @@
 package org.example.controller;
 
 
+import com.mysql.cj.util.StringUtils;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
 import io.swagger.annotations.ApiParam;
 import lombok.extern.slf4j.Slf4j;
+import org.example.enums.BizCodeEnum;
 import org.example.enums.ClientTypeEnum;
 import org.example.enums.ProductOrderPayTypeEnum;
 import org.example.request.ConfirmOrderRequest;
@@ -30,7 +32,21 @@ import java.io.IOException;
 @Slf4j
 public class ProductOrderController {
     @Autowired
-    private ProductOrderService productOrderService;
+    private ProductOrderService orderService;
+
+    /**
+     * 查询呢订单状态
+     *
+     * 此接口没有登陆拦截，可以增加一个密钥进行rpc通讯
+     * @param outTradeNo
+     * @return
+     */
+    @ApiOperation("查询订单状态")
+    @GetMapping("query_state")
+    public JsonData queryProductOrderState(@RequestParam("out_trade_no")String outTradeNo){
+        String state = orderService.queryProductOrderState(outTradeNo);
+        return StringUtils.isNullOrEmpty(state)?JsonData.buildResult(BizCodeEnum.ORDER_CONFIRM_NOT_EXIST):JsonData.buildSuccess();
+    }
 
     @ApiOperation("提交订单")
     @PostMapping("confim")
@@ -38,7 +54,7 @@ public class ProductOrderController {
             @ApiParam("订单对象")
             @RequestBody ConfirmOrderRequest confirmOrderRequest,
             HttpServletResponse response){
-        JsonData jsonData = productOrderService.confirmOrder(confirmOrderRequest);
+        JsonData jsonData = orderService.confirmOrder(confirmOrderRequest);
         if (jsonData.getCode() == 0){
 
             String client = confirmOrderRequest.getClientType();

@@ -39,8 +39,12 @@ public enum BizCodeEnum {
      * 购物车
      */
     CART_FAIL(270001,"加入购物车失败"),
-    CART_CHANGE_ILLEGAL(270002,"修改购物车不合法")
-    ;
+    CART_CHANGE_ILLEGAL(270002,"修改购物车不合法"),
+
+    /**
+     * 订单
+     */
+    ORDER_CONFIRM_NOT_EXIST(280001,"订单不存在" );
 
 
     @Getter
