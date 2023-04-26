@@ -80,14 +80,16 @@ public class RabbitMQConfig {
      */
     @Bean
     public Queue couponReleaseDelayQueue(){
+
         Map<String,Object> args = new HashMap<>(3);
-        args.put("x-message-ttl", ttl);
-        args.put("x-dead-letter-routing-key",couponReleaseDelayRoutingKey);
-        args.put("x-dead-letter-exchange", eventExchange);
+        args.put("x-message-ttl",ttl);
+        args.put("x-dead-letter-routing-key",couponReleaseRoutingKey);
+        args.put("x-dead-letter-exchange",eventExchange);
+
         return new Queue(couponReleaseDelayQueue,true,false,false,args);
     }
     /**
-     * 死信队列，普通队列，用户被监听
+     * 死信队列，用户被监听
      */
     @Bean
     public Queue couponReleaseQueue(){

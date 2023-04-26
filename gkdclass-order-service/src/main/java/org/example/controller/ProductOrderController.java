@@ -45,7 +45,7 @@ public class ProductOrderController {
     @GetMapping("query_state")
     public JsonData queryProductOrderState(@RequestParam("out_trade_no")String outTradeNo){
         String state = orderService.queryProductOrderState(outTradeNo);
-        return StringUtils.isNullOrEmpty(state)?JsonData.buildResult(BizCodeEnum.ORDER_CONFIRM_NOT_EXIST):JsonData.buildSuccess();
+        return StringUtils.isNullOrEmpty(state)?JsonData.buildResult(BizCodeEnum.ORDER_CONFIRM_NOT_EXIST):JsonData.buildSuccess(state);
     }
 
     @ApiOperation("提交订单")

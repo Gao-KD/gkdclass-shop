@@ -5,6 +5,7 @@ import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
 import io.swagger.annotations.ApiParam;
 import org.example.enums.BizCodeEnum;
+import org.example.request.LockProductRequest;
 import org.example.service.ProductService;
 import org.example.utils.JsonData;
 import org.example.vo.ProductVO;
@@ -41,10 +42,17 @@ public class ProductController {
     }
 
     @ApiOperation("商品详情")
-    @GetMapping("/detail/{product_id}")
-    public JsonData detail(@ApiParam(value = "商品id",required = true)@PathVariable(value = "product_id")long product_id){
+    @GetMapping("/detail")
+    public JsonData detail(@ApiParam(value = "商品id",required = true)@RequestParam(value = "product_id") long product_id){
         ProductVO productVO = productService.findDetailById(product_id);
         return JsonData.buildSuccess(productVO);
+    }
+
+    @ApiOperation("商品库存锁定")
+    @PostMapping("/lock_products")
+    public JsonData lockProducts(@ApiParam(value = "商品库存锁定对象")@RequestBody LockProductRequest lockProductRequest){
+        JsonData jsonData = productService.lockProductStock(lockProductRequest);
+        return jsonData;
     }
 }
 

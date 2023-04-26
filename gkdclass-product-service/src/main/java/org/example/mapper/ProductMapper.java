@@ -1,6 +1,7 @@
 package org.example.mapper;
 
 import org.apache.ibatis.annotations.Mapper;
+import org.apache.ibatis.annotations.Param;
 import org.example.model.ProductDO;
 import com.baomidou.mybatisplus.core.mapper.BaseMapper;
 
@@ -15,4 +16,5 @@ import com.baomidou.mybatisplus.core.mapper.BaseMapper;
 @Mapper
 public interface ProductMapper extends BaseMapper<ProductDO> {
 
+    int lockProductStock(@Param("productId") long productId,@Param("buyNum") int buyNum);
 }

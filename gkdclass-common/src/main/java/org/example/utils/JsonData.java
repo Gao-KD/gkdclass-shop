@@ -14,7 +14,7 @@ public class JsonData {
      * 状态码 0 表示成功，1表示处理中，-1表示失败
      */
 
-    private Integer code;
+    private int code;
     /**
      * 数据
      */
