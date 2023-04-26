@@ -4,12 +4,14 @@ import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.baomidou.mybatisplus.core.metadata.IPage;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import lombok.extern.slf4j.Slf4j;
+import org.example.config.RabbitMQConfig;
 import org.example.enums.BizCodeEnum;
 import org.example.enums.StockTaskStateEnum;
 import org.example.exception.BizException;
 import org.example.mapper.ProductTaskMapper;
 import org.example.model.ProductDO;
 import org.example.mapper.ProductMapper;
+import org.example.model.ProductRecordMessage;
 import org.example.model.ProductTaskDO;
 import org.example.request.LockProductRequest;
 import org.example.request.OrderItemRequest;
@@ -17,6 +19,7 @@ import org.example.service.ProductService;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import org.example.utils.JsonData;
 import org.example.vo.ProductVO;
+import org.springframework.amqp.rabbit.core.RabbitTemplate;
 import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -45,6 +48,12 @@ public class ProductServiceImpl implements ProductService {
 
     @Autowired
     private ProductTaskMapper productTaskMapper;
+
+    @Autowired
+    private RabbitTemplate rabbitTemplate;
+
+    @Autowired
+    private RabbitMQConfig rabbitMQConfig;
 
     @Override
     public Map<String, Object> pageProductActivity(int page, int size) {
@@ -123,6 +132,13 @@ public class ProductServiceImpl implements ProductService {
                 productTaskMapper.insert(productTaskDO);
 
                 //todo 发送延迟队列
+                ProductRecordMessage productRecordMessage = new ProductRecordMessage();
+                productRecordMessage.setOutTradeNo(orderOutTradeNo);
+                productRecordMessage.setTaskId(productTaskDO.getId());
+
+                rabbitTemplate.convertAndSend(rabbitMQConfig.getEventExchange(), rabbitMQConfig.getStockReleaseDelayRoutingKey(),productRecordMessage);
+                log.info("商品库存锁定延迟消息发送成功:{}",productRecordMessage);
+
             }
 
         }
