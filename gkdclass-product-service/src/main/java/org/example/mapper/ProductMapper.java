@@ -17,4 +17,11 @@ import com.baomidou.mybatisplus.core.mapper.BaseMapper;
 public interface ProductMapper extends BaseMapper<ProductDO> {
 
     int lockProductStock(@Param("productId") long productId,@Param("buyNum") int buyNum);
+
+    /**
+     * 修改商品库存
+     * @param productId
+     * @param buyNum
+     */
+    void unLockProductStock(@Param("productId") Long productId,@Param("buyNum") Integer buyNum);
 }

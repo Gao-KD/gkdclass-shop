@@ -6,8 +6,11 @@ import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import lombok.extern.slf4j.Slf4j;
 import org.example.config.RabbitMQConfig;
 import org.example.enums.BizCodeEnum;
+import org.example.enums.CouponStateEnum;
+import org.example.enums.ProductOrderStateEnum;
 import org.example.enums.StockTaskStateEnum;
 import org.example.exception.BizException;
+import org.example.feign.ProductOrderFeignService;
 import org.example.mapper.ProductTaskMapper;
 import org.example.model.ProductDO;
 import org.example.mapper.ProductMapper;
@@ -55,6 +58,9 @@ public class ProductServiceImpl implements ProductService {
     @Autowired
     private RabbitMQConfig rabbitMQConfig;
 
+    @Autowired
+    private ProductOrderFeignService orderFeignService;
+
     @Override
     public Map<String, Object> pageProductActivity(int page, int size) {
         Page<ProductDO> pageInfo = new Page<>(page, size);
@@ -100,6 +106,7 @@ public class ProductServiceImpl implements ProductService {
      * 锁定商品库存
      * 1)遍历商品，锁定每个商品数量
      * 2)每次锁定，都要发送延迟消息
+     *
      * @param lockProductRequest
      * @return
      */
@@ -113,13 +120,13 @@ public class ProductServiceImpl implements ProductService {
         //批量查询
         List<ProductVO> productVOList = this.findProductByIdBatch(collectIds);
         //分组
-        Map<Long,ProductVO> productMap = productVOList.stream().collect(Collectors.toMap(ProductVO::getId, Function.identity()));
+        Map<Long, ProductVO> productMap = productVOList.stream().collect(Collectors.toMap(ProductVO::getId, Function.identity()));
 
-        for (OrderItemRequest item:orderItemList){
-            int rows = productMapper.lockProductStock(item.getProductId(),item.getBuyNum());
-            if (rows != 1){
+        for (OrderItemRequest item : orderItemList) {
+            int rows = productMapper.lockProductStock(item.getProductId(), item.getBuyNum());
+            if (rows != 1) {
                 throw new BizException(BizCodeEnum.ORDER_CONFIRM_LOCK_PRODUCT_FAIL);
-            }else {
+            } else {
                 ProductVO productVO = productMap.get(item.getProductId());
 
                 ProductTaskDO productTaskDO = new ProductTaskDO();
@@ -136,14 +143,63 @@ public class ProductServiceImpl implements ProductService {
                 productRecordMessage.setOutTradeNo(orderOutTradeNo);
                 productRecordMessage.setTaskId(productTaskDO.getId());
 
-                rabbitTemplate.convertAndSend(rabbitMQConfig.getEventExchange(), rabbitMQConfig.getStockReleaseDelayRoutingKey(),productRecordMessage);
-                log.info("商品库存锁定延迟消息发送成功:{}",productRecordMessage);
+                rabbitTemplate.convertAndSend(rabbitMQConfig.getEventExchange(), rabbitMQConfig.getStockReleaseDelayRoutingKey(), productRecordMessage);
+                log.info("商品库存锁定延迟消息发送成功:{}", productRecordMessage);
 
             }
 
         }
 
         return JsonData.buildSuccess();
+    }
+
+    /**
+     * 释放商品库存
+     *
+     * @param recordMessage
+     * @return
+     */
+    @Override
+    public boolean releaseProductStock(ProductRecordMessage recordMessage) {
+        ProductTaskDO productTaskDO = productTaskMapper.selectOne(new QueryWrapper<ProductTaskDO>().eq("id", recordMessage.getTaskId()));
+        if (productTaskDO == null) {
+            log.warn("工作单不存在");
+            return true;
+        }
+        //状态为lock才会处理
+        if (productTaskDO.getLockState().equalsIgnoreCase(StockTaskStateEnum.LOCK.name())) {
+            //根据订单号查询状态
+            JsonData jsonData = orderFeignService.queryProductOrderState(recordMessage.getOutTradeNo());
+            String state = jsonData.getData().toString();
+            if (ProductOrderStateEnum.UNPAID.name().equalsIgnoreCase(state)) {
+                //状态是UNPAID状态，则返回给消息队列，重新投递
+                log.warn("订单状态是UNPAID，返回给消息队列，重新投递:{}", recordMessage);
+                return false;
+            }
+            //如果已经支付
+            if (ProductOrderStateEnum.PAID.name().equalsIgnoreCase(state)) {
+                //修改状态为finish
+                productTaskDO.setLockState(StockTaskStateEnum.FINISH.name());
+                productTaskMapper.update(productTaskDO, new QueryWrapper<ProductTaskDO>().eq("id", recordMessage.getTaskId()));
+                log.info("订单已经支付，修改库存锁定工作单FINISH状态:{}", recordMessage);
+                return true;
+            }
+
+            //订单不存在，或者订单被取消，确认消息，修改task状态为CANCEL
+            log.warn("订单不存在");
+            //修改订单工单为CNACEL
+            productTaskDO.setLockState(StockTaskStateEnum.CANCEL.name());
+            productTaskMapper.update(productTaskDO, new QueryWrapper<ProductTaskDO>().eq("id", recordMessage.getTaskId()));
+            //恢复商品库存表，即锁定库存的值减去当前购买的值
+            productMapper.unLockProductStock(productTaskDO.getProductId(), productTaskDO.getBuyNum());
+
+            return true;
+
+        } else {
+            //非lock
+            log.warn("工作单状态不是LOCK，state={},消息题={}", productTaskDO.getLockState(), recordMessage);
+            return true;
+        }
     }
 
 

@@ -2,6 +2,7 @@ package org.example.service;
 
 import org.example.model.ProductDO;
 import com.baomidou.mybatisplus.extension.service.IService;
+import org.example.model.ProductRecordMessage;
 import org.example.request.LockProductRequest;
 import org.example.utils.JsonData;
 import org.example.vo.ProductVO;
@@ -42,9 +43,16 @@ public interface ProductService {
     List<ProductVO> findProductByIdBatch(List<Long> productIdList);
 
     /**
-     * 落定商品库存
+     * 锁定商品库存
      * @param lockProductRequest
      * @return
      */
     JsonData lockProductStock(LockProductRequest lockProductRequest);
+
+    /**
+     * 释放商品库存
+     * @param recordMessage
+     * @return
+     */
+    boolean releaseProductStock(ProductRecordMessage recordMessage);
 }
