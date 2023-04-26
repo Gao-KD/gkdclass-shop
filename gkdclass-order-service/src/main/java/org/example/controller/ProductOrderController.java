@@ -35,7 +35,7 @@ public class ProductOrderController {
     private ProductOrderService orderService;
 
     /**
-     * 查询呢订单状态
+     * 查询订单状态
      *
      * 此接口没有登陆拦截，可以增加一个密钥进行rpc通讯
      * @param outTradeNo

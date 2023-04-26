@@ -28,7 +28,7 @@ public class    AddressController {
     private AddressService addressService;
 
     @ApiOperation("根据id查找地址详情")
-    @GetMapping("detail")
+    @GetMapping("/detail")
     public Object test(    @ApiParam(value = "地址id",required = true)
                            @RequestParam(value = "address_id")long address_id){
         AddressDO addressDO = addressService.detail(address_id);

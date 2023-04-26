@@ -2,6 +2,7 @@ package org.example.test;
 
 import lombok.extern.slf4j.Slf4j;
 import org.example.ProductApplication;
+import org.example.model.ProductRecordMessage;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.springframework.amqp.rabbit.core.RabbitTemplate;
@@ -18,5 +19,12 @@ public class MQTest {
     @Test
     public void send(){
         rabbitTemplate.convertAndSend("stock.event.exchange", "stock.release.delay.routing.key", "this is stock");
+    }
+    @Test
+    public void TestSendProductStockMessage(){
+        ProductRecordMessage recordMessage = new ProductRecordMessage();
+        recordMessage.setTaskId(1L);
+        recordMessage.setOutTradeNo("123456abc");
+        rabbitTemplate.convertAndSend("stock.event.exchange","stock.release.delay.routing.key",recordMessage);
     }
 }

@@ -45,7 +45,11 @@ public enum BizCodeEnum {
      * 订单
      */
     ORDER_CONFIRM_NOT_EXIST(280001,"订单不存在" ),
-    ORDER_CONFIRM_LOCK_PRODUCT_FAIL(280002, "锁定商品失败");
+    ORDER_CONFIRM_LOCK_PRODUCT_FAIL(280002, "锁定商品失败"),
+    /**
+     * 地址
+     */
+    ADDRESS_NO_EXITS(290001, "地址不存在");
 
 
     @Getter
