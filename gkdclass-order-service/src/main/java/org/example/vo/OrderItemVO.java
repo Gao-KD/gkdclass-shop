@@ -44,6 +44,7 @@ public class OrderItemVO {
     private BigDecimal totalAmount;
 
 
+
     public Long getProductId() {
         return productId;
     }

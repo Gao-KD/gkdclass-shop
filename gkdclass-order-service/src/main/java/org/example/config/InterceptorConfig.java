@@ -2,6 +2,7 @@ package org.example.config;
 
 import feign.RequestInterceptor;
 import lombok.extern.slf4j.Slf4j;
+import org.example.Interceptor.CorsIntercept;
 import org.example.Interceptor.LoginInterceptor;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -18,12 +19,15 @@ import javax.servlet.http.HttpServletRequest;
 @Slf4j
 public class InterceptorConfig implements WebMvcConfigurer {
 
+    @Bean
+    CorsIntercept corsIntercept(){return new CorsIntercept();}
+
     @Override
     public void addInterceptors(InterceptorRegistry registry) {
 
         registry.addInterceptor(new LoginInterceptor())
                 //拦截的路径
-                .addPathPatterns("/api/order/*/**")
+                .addPathPatterns("/api/order/*/**","/api/order/v1/query_order")
 
                 //排查不拦截的路径 支付回调
                 .excludePathPatterns("/api/callback/*/**", "/api/order/*/query_state");

@@ -1,7 +1,10 @@
 package org.example.service;
 
 import org.example.request.CartItemRequest;
+import org.example.vo.CartItemVO;
 import org.example.vo.CartVO;
+
+import java.util.List;
 
 public interface CartService {
 
@@ -24,13 +27,15 @@ public interface CartService {
 
     /**
      * 删除购物车商品
-     * @param cartItemRequest
+     * @param productId
      */
-    void deleteCart(CartItemRequest cartItemRequest);
+    void deleteCart(Long productId);
 
     /**
      * 修改购物车商品数量
      * @param cartItemRequest
      */
     void changeCart(CartItemRequest cartItemRequest);
+
+    List<CartItemVO> confirmOrderCartItems(List<Long> productIdList);
 }

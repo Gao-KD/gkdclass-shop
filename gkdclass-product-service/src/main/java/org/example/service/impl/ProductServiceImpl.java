@@ -94,7 +94,7 @@ public class ProductServiceImpl implements ProductService {
      */
     @Override
     public List<ProductVO> findProductByIdBatch(List<Long> productIdList) {
-        //根据购物车里的所有id进行in查询，查找所有的商品的价格
+        //根据购物车里的所有id进行查询，查找所有的商品的价格
         List<ProductDO> productDOList = productMapper.selectList(new QueryWrapper<ProductDO>().in("id", productIdList));
         List<ProductVO> voList = productDOList.stream().map(
                 obj -> beanProcess(obj)

@@ -4,6 +4,9 @@ import org.example.model.ProductOrderDO;
 import com.baomidou.mybatisplus.extension.service.IService;
 import org.example.request.ConfirmOrderRequest;
 import org.example.utils.JsonData;
+import org.example.vo.OrderItemVO;
+
+import java.util.List;
 
 /**
  * <p>
@@ -23,4 +26,6 @@ public interface ProductOrderService {
     JsonData confirmOrder(ConfirmOrderRequest confirmOrderRequest);
 
     String queryProductOrderState(String outTradeNo);
+
+    List<ProductOrderDO> queryOrderByUserId(Long id);
 }

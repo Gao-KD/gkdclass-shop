@@ -2,10 +2,12 @@ package org.example.service.impl;
 
 import com.alibaba.fastjson.TypeReference;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
+import com.baomidou.mybatisplus.core.metadata.OrderItem;
 import lombok.extern.slf4j.Slf4j;
 import org.example.Interceptor.LoginInterceptor;
 import org.example.enums.BizCodeEnum;
 import org.example.exception.BizException;
+import org.example.feign.ProductFeignService;
 import org.example.feign.UserFeignService;
 import org.example.model.LoginUser;
 import org.example.model.ProductOrderDO;
@@ -21,6 +23,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
+import java.util.stream.Collectors;
 
 
 /**
@@ -40,6 +43,9 @@ public class ProductOrderServiceImpl  implements ProductOrderService {
 
     @Autowired
     private UserFeignService userFeignService;
+
+    @Autowired
+    private ProductFeignService productFeignService;
     /**
      * 防重提交
      * 用户微服务-确认收货地址
@@ -65,10 +71,17 @@ public class ProductOrderServiceImpl  implements ProductOrderService {
         ProductOrderAddressVO addressVO = this.getUserAddress(orderRequest.getAddressId());
 
         log.info("收货地址信息:{}",addressVO);
-/**
-        //获取用户加入购物车的商品
-        List<Long> productIdList = orderRequest.getProductIdList();
 
+        //获取用户确认的商品信息
+        List<Long> productIdList = orderRequest.getProductIdList();
+        JsonData cartItemDate = productFeignService.ConfirmOrderCartItem(productIdList);
+
+        List<OrderItemVO> orderItemList  =  cartItemDate.getData(new TypeReference<List<OrderItemVO>>(){});
+        if (orderItemList == null){
+            throw new BizException(BizCodeEnum.ORDER_CONFIRM_NOT_EXIST);
+        }
+
+/**
         JsonData cartItemDate = productFeignService.confirmOrderCartItem(productIdList);
         List<OrderItemVO> orderItemList  = cartItemDate.getData(new TypeReference<T>(){});
         log.info("获取的商品:{}",orderItemList);
@@ -116,6 +129,18 @@ public class ProductOrderServiceImpl  implements ProductOrderService {
             return orderDO.getState();
         }
     }
+
+    /**
+     * 查询订单接口
+     * @param user_id
+     * @return
+     */
+    @Override
+    public List<ProductOrderDO> queryOrderByUserId(Long user_id) {
+        List<ProductOrderDO> productOrderDOList = productOrderMapper.selectList(new QueryWrapper<ProductOrderDO>().eq("user_id",user_id));
+        return productOrderDOList;
+    }
+
 
 
     public ProductOrderAddressVO getUserAddress(long addressId){

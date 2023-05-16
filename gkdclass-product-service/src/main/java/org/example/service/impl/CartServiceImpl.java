@@ -1,6 +1,7 @@
 package org.example.service.impl;
 
 import com.alibaba.fastjson.JSON;
+import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
 import org.example.Interceptor.LoginInterceptor;
@@ -117,16 +118,15 @@ public class CartServiceImpl implements CartService {
 
     /**
      * 根据id删除购物车商品
-     * @param cartItemRequest
+     * @param productId
      */
     @Override
-    public void deleteCart(CartItemRequest cartItemRequest) {
-
-        if (cartItemRequest.getProductId() < 0){
+    public void deleteCart(Long productId) {
+        if (productId < 0){
             throw new BizException(BizCodeEnum.CART_CHANGE_ILLEGAL);
         }
         BoundHashOperations<String,Object,Object> myCart = getMyCartOps();
-        myCart.delete(String.valueOf(cartItemRequest.getProductId()));
+        myCart.delete(String.valueOf(productId));
     }
 
     /**
@@ -150,6 +150,28 @@ public class CartServiceImpl implements CartService {
         //object -> json
         myCart.put(String.valueOf(cartItemRequest.getProductId()),JSON.toJSONString(cartItemVO));
 
+    }
+
+    /**
+     * 获取商品的基本信息
+     * @param productIdList
+     * @return
+     */
+    @Override
+    public List<CartItemVO> confirmOrderCartItems(List<Long> productIdList) {
+        //获取全部购物车的购物项
+        List<CartItemVO> cartItemVOList = buildCartItem(true);
+
+        //根据商品id进行过滤
+        List<CartItemVO> resultList = cartItemVOList.stream().filter(obj -> {
+            if (productIdList.contains(obj.getProductId())){
+                this.deleteCart(obj.getProductId());
+                return true;
+            }else {
+                return false;
+            }
+        }).collect(Collectors.toList());
+        return resultList;
     }
 
     /**

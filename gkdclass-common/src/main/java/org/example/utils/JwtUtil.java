@@ -20,7 +20,7 @@ public class JwtUtil {
     /**
      * 过期时间，正常时7天，在这设置1天
      */
-    private static final long TOKEN_EXPIRE = 1000 * 60 * 60 * 24 * 3;
+    private static final long TOKEN_EXPIRE = 1000 * 60 * 60 * 24 * 7;
 
     /**
      * 密钥

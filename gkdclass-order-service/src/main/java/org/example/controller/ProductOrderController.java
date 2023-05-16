@@ -1,22 +1,29 @@
 package org.example.controller;
 
 
+import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.mysql.cj.util.StringUtils;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
 import io.swagger.annotations.ApiParam;
 import lombok.extern.slf4j.Slf4j;
+import org.example.Interceptor.LoginInterceptor;
 import org.example.enums.BizCodeEnum;
 import org.example.enums.ClientTypeEnum;
 import org.example.enums.ProductOrderPayTypeEnum;
+import org.example.model.LoginUser;
+import org.example.model.ProductOrderDO;
 import org.example.request.ConfirmOrderRequest;
 import org.example.service.ProductOrderService;
 import org.example.utils.JsonData;
+import org.example.vo.OrderItemVO;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 
 import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
+import java.util.List;
+import java.util.stream.Collectors;
 
 /**
  * <p>
@@ -26,13 +33,22 @@ import java.io.IOException;
  * @author gaokd
  * @since 2023-04-04
  */
-@Api("订单模块")
+@Api(value = "订单模块")
 @RestController
 @RequestMapping("/api/order/v1")
 @Slf4j
 public class ProductOrderController {
     @Autowired
     private ProductOrderService orderService;
+
+
+    @GetMapping("query_order")
+    public JsonData queryOrderByUserId(){
+        LoginUser loginUser = LoginInterceptor.threadLocal.get();
+        Long id = loginUser.getId();
+        List<ProductOrderDO> productOrderDOList = orderService.queryOrderByUserId(id);
+        return JsonData.buildSuccess(productOrderDOList);
+    }
 
     /**
      * 查询订单状态

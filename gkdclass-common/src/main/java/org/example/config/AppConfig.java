@@ -1,5 +1,6 @@
 package org.example.config;
 
+import feign.RequestInterceptor;
 import lombok.Data;
 import org.redisson.Redisson;
 import org.redisson.api.RedissonClient;
@@ -7,6 +8,11 @@ import org.redisson.config.Config;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.web.context.request.RequestAttributes;
+import org.springframework.web.context.request.RequestContextHolder;
+import org.springframework.web.context.request.ServletRequestAttributes;
+
+import javax.servlet.http.HttpServletRequest;
 
 @Configuration
 @Data
