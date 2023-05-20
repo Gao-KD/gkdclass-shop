@@ -6,7 +6,9 @@ import com.baomidou.mybatisplus.core.metadata.OrderItem;
 import lombok.extern.slf4j.Slf4j;
 import org.example.Interceptor.LoginInterceptor;
 import org.example.enums.BizCodeEnum;
+import org.example.enums.CouponStateEnum;
 import org.example.exception.BizException;
+import org.example.feign.CouponFeignService;
 import org.example.feign.ProductFeignService;
 import org.example.feign.UserFeignService;
 import org.example.model.LoginUser;
@@ -17,11 +19,13 @@ import org.example.service.ProductOrderService;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import org.example.utils.CommonUtil;
 import org.example.utils.JsonData;
+import org.example.vo.CouponRecordVO;
 import org.example.vo.OrderItemVO;
 import org.example.vo.ProductOrderAddressVO;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import java.math.BigDecimal;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -46,6 +50,9 @@ public class ProductOrderServiceImpl  implements ProductOrderService {
 
     @Autowired
     private ProductFeignService productFeignService;
+
+    @Autowired
+    private CouponFeignService couponFeignService;
     /**
      * 防重提交
      * 用户微服务-确认收货地址
@@ -78,18 +85,14 @@ public class ProductOrderServiceImpl  implements ProductOrderService {
 
         List<OrderItemVO> orderItemList  =  cartItemDate.getData(new TypeReference<List<OrderItemVO>>(){});
         if (orderItemList == null){
+            //购物车商品不存在
             throw new BizException(BizCodeEnum.ORDER_CONFIRM_NOT_EXIST);
         }
 
-/**
-        JsonData cartItemDate = productFeignService.confirmOrderCartItem(productIdList);
-        List<OrderItemVO> orderItemList  = cartItemDate.getData(new TypeReference<T>(){});
-        log.info("获取的商品:{}",orderItemList);
-        if(orderItemList == null){
-            //购物车商品不存在
-            throw new BizException(BizCodeEnum.ORDER_CONFIRM_CART_ITEM_NOT_EXIST);
-        }
+        //验证价格，减去商品优惠券
+        this.checkPrice(orderItemList,orderRequest);
 
+/**
         //验证价格，减去商品优惠券
         this.checkPrice(orderItemList,orderRequest);
 
@@ -113,6 +116,75 @@ public class ProductOrderServiceImpl  implements ProductOrderService {
 */
 
         return null;
+    }
+
+    /**
+     * 验证价格
+     * 1）统计全部商品的价格
+     * 2）获取优惠券（判断是否满足优惠券的条件）
+     * @param orderItemList
+     * @param orderRequest
+     */
+    private void checkPrice(List<OrderItemVO> orderItemList, ConfirmOrderRequest orderRequest) {
+        //统计商品总价格
+        BigDecimal realPayAmount = new BigDecimal("0");
+        if (orderItemList != null){
+            for (OrderItemVO itemVO : orderItemList) {
+                BigDecimal itemRealPayAmount = itemVO.getAmount();
+                realPayAmount = realPayAmount.add(itemRealPayAmount);
+            }
+            //获取优惠券，判断是否可以使用
+            CouponRecordVO couponRecordVO = getCartCouponRecord(orderRequest.getCouponRecordId());
+            //计算购物车价格是否满足优惠券满减条件
+            if (couponRecordVO != null){
+                //计算是否符合满减
+                if (realPayAmount.compareTo(couponRecordVO.getConditionPrice()) < 0 ){
+                    throw new BizException(BizCodeEnum.ORDER_CONFIRM_COUPON_FAIL);
+                }else if (couponRecordVO.getConditionPrice().compareTo(realPayAmount) > 0){
+                    realPayAmount = BigDecimal.ZERO;
+                }else {
+                    realPayAmount = realPayAmount.subtract(couponRecordVO.getConditionPrice());
+                }
+            }
+            if (realPayAmount.compareTo(orderRequest.getRealPayPrice()) != 0){
+                log.error("订单验价失败");
+                throw new BizException(BizCodeEnum.ORDER_CONFIRM_PRICE_FAIL);
+            }
+        }
+    }
+
+    /**
+     * 获取优惠券
+     * @param couponRecordId
+     * @return
+     */
+    private CouponRecordVO getCartCouponRecord(Long couponRecordId) {
+        if (couponRecordId == null || couponRecordId == 0){
+            return null;
+        }
+        JsonData userCouponRecordById = couponFeignService.findUserCouponRecordById(couponRecordId);
+        if (userCouponRecordById.getCode() != 0){
+            throw new BizException(BizCodeEnum.ORDER_CONFIRM_COUPON_FAIL);
+        }else {
+            CouponRecordVO data = userCouponRecordById.getData(new TypeReference<CouponRecordVO>(){});
+            if (!couponAvaliable(data)){
+                log.error("优惠券使用失败");
+                throw new BizException(BizCodeEnum.COUPON_UNAVALIABLE);
+            }
+            return data;
+        }
+    }
+
+    private boolean couponAvaliable(CouponRecordVO data) {
+        if (data.getUseState().equalsIgnoreCase(CouponStateEnum.NEW.name())){
+            long currentTimestamp = CommonUtil.getCurrentTimestamp();
+            long end = data.getEndTime().getTime();
+            long start = data.getStartTime().getTime();
+            if (currentTimestamp >= start && currentTimestamp <= end){
+                return true;
+            }
+        }
+        return false;
     }
 
     /**

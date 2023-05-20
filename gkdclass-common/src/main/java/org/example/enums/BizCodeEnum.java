@@ -34,7 +34,8 @@ public enum BizCodeEnum {
     COUPON_OUT_OF_LIMITE(2600004,"优惠券领取超过限制"),
     COUPON_STATE_ILLEGAL(260005,"优惠券状态不合法"),
     COUPON_RECORD_LOCK_FAIL(260006,"锁定优惠券失败" ),
-
+    ORDER_CONFIRM_COUPON_FAIL(260007,"优惠券确认失败" ),
+    COUPON_UNAVALIABLE(260008, "优惠券不可用"),
     /**
      * 购物车
      */
@@ -46,6 +47,7 @@ public enum BizCodeEnum {
      */
     ORDER_CONFIRM_NOT_EXIST(280001,"订单不存在" ),
     ORDER_CONFIRM_LOCK_PRODUCT_FAIL(280002, "锁定商品失败"),
+     ORDER_CONFIRM_PRICE_FAIL(280003, "订单验价失败"),
     /**
      * 地址
      */

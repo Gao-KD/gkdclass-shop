@@ -65,7 +65,7 @@ public class ProductOrderController {
     }
 
     @ApiOperation("提交订单")
-    @PostMapping("confim")
+    @PostMapping("confirm")
     public void confirmOrder(
             @ApiParam("订单对象")
             @RequestBody ConfirmOrderRequest confirmOrderRequest,
